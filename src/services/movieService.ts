@@ -8,12 +8,19 @@ axios.defaults.headers.common["Authorization"] = `Bearer ${API_KEY}`;
 
 interface MovieHttpResponse {
   results: Movie[];
+  page: number;
+  total_pages: number;
 }
 
-export const fetchMovies = async (title: string): Promise<Movie[]> => {
+export const fetchMovies = async (
+  title: string,
+  current_page: number
+): Promise<MovieHttpResponse> => {
   const params = {
     query: title,
+    page: current_page,
   };
   const { data } = await axios.get<MovieHttpResponse>("/movie", { params });
-  return data.results;
+
+  return data;
 };
