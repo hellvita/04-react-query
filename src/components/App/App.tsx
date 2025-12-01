@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { fetchMovies } from "../../services/movieService";
 import SearchBar from "../SearchBar/SearchBar";
 import ReactPaginate from "react-paginate";
-import { Toaster } from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 import type { Movie } from "../../types/movie";
 import MovieGrid from "../MovieGrid/MovieGrid";
 import Loader from "../Loader/Loader";
@@ -17,7 +17,7 @@ export default function App() {
 
   const [currentMovie, setCurrentMovie] = useState<Movie | null>(null);
 
-  const { data, isLoading, isError, isSuccess } = useQuery({
+  const { data, isLoading, isError, isSuccess, isPlaceholderData } = useQuery({
     queryKey: ["movies", title, currentPage],
     queryFn: () => fetchMovies(title, currentPage),
     enabled: title !== "",
@@ -25,6 +25,11 @@ export default function App() {
   });
 
   const totalPages = data?.total_pages ?? 0;
+
+  useEffect(() => {
+    if (isSuccess && !isPlaceholderData && data && data.results.length === 0)
+      toast("No movies found for your request.");
+  }, [isSuccess, isPlaceholderData, data, title]);
 
   const handleSearch = async (title: string) => {
     setTitle(title);
